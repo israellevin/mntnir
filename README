@@ -1,0 +1,37 @@
+mountaineer: two men skilled in climbing mountains
+mntnir: the CLI volume manager
+
+This small bash script lets you mount, unmount and detache volumes right from the comfort of your command line, while adhering to the freedesktop standards. It is an easy interface to the udisks daemon, which handles the mounting of volumes in most modern linux systems.
+
+Run the script with no arguments to see an informative list of volumes attached to your machine:
+    $ ./mntnir.sh
+    /dev/sdd1 : libcard 15.12Gb not mounted
+    /dev/sda1 : Tardis 431.23Gb not mounted
+    /dev/sda2 : loserfs 32.00Gb not mounted
+    /dev/sdc1 : 372.61Gb mounted on /
+    /dev/sdb1 : Tera 931.51Gb mounted on /media/Tera
+
+Run it with a single argument to filter the list:
+    $ ./mntnir.sh sda
+    /dev/sda1 : Tardis 431.23Gb not mounted
+    /dev/sda2 : loserfs 32.00Gb not mounted
+
+If the filter comes up with a single result, it prints possible actions:
+    $ ./mntnir.sh libca
+    /dev/sdd1 mount
+    /dev/sdd1 detach
+
+Give it a letter or more of your chosen action to make it so:
+    $ ./mntnir.sh libca m
+    /dev/sdd1 mounted on /media/libcard
+
+Or glue it all together in a script with something like dmenu:
+    #!/bin/sh
+    dmenu='dmenu -i -l 10'
+    vol=`/root/work/mntnir/mntnir.sh | $dmenu`
+    if [ "$vol" ]; then
+        command=`/root/work/mntnir/mntnir.sh $vol | $dmenu`
+        if [ "$command" ]; then
+            /root/work/mntnir/mntnir.sh $command | $dmenu
+        fi
+    fi
