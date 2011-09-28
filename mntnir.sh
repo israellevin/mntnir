@@ -24,7 +24,7 @@ function parse
                 parse $1 $2 $3
                 shift 3
             else
-                parse $1 $2
+                parse ${@:1:$# - 1}
                 shift 2
             fi
         done
