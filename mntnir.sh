@@ -84,17 +84,18 @@ else
         dev=$(query "$vol" DeviceFile)
         lbl=$(query "$vol" IdLabel)
         siz=$(humanify $(query "$vol" DeviceSize))
+        fst=$(query "$vol" IdType)
         if [ 'true' = "$(query "$vol" DeviceIsMounted)" ]; then
             mnt='mounted'
             [ 'true' = "$(query "$vol" DeviceIsReadOnly)" ] && mnt="$mnt (RO)"
             pth=$(query "$vol" DeviceMountPaths)
-            mnt="$mnt on ${pth[*]}"
+            mnt="$mnt on \"${pth[*]}\""
         else
             mnt='not mounted'
         fi
 
         # Filter non-matches
-        [ "$1" ] && [ $(matchi "${dev}${lbl}${siz}${mnt}" "$1") -eq -1 ] && continue
+        [ "$1" ] && [ $(matchi "${dev}${lbl}${fst}${siz}${mnt}" "$1") -eq -1 ] && continue
 
         vols=( ${vols[*]} "$vol" )
         cur_mnt="$mnt"
@@ -102,7 +103,7 @@ else
 
         # Prepare output string
         [ ${#vols[*]} -gt 1 ] && s+="\n"
-        s+=$(echo "$dev : $lbl $siz $mnt" | tr -s " ")
+        s+=$(echo "$dev : \"$lbl\" $siz $fst $mnt" | tr -s " ")
     done
 
     # Multiple volumes matched, output information about them
