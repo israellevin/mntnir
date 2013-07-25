@@ -49,8 +49,8 @@ function query
 # Case insensitive matching
 function matchi
 {
-    local s; s=$(tr [:upper:] [:lower:] <<< $1)
-    local p; p=$(tr [:upper:] [:lower:] <<< $2)
+    local s; s=$(tr '[:upper:]' '[:lower:]' <<< $1)
+    local p; p=$(tr '[:upper:]' '[:lower:]' <<< $2)
     local r; r=${s/${p}*/}
     [ ${#r} -eq ${#s} ] && echo -1 || echo "${#r}"
 }
@@ -58,7 +58,7 @@ function matchi
 # Turn number of bytes into human readable size
 function humanify
 {
-    gawk '{ hum[1024**4]="Tb";hum[1024**3]="Gb";hum[1024**2]="Mb";hum[1024]="Kb"; for (x=1024**4; x>=1024; x/=1024) { if ($1 >= x) { printf "%.2f%s\n", $1 / x, hum[x]; break } } }' <<< $1
+    awk '{split("B K M G",v); s=1; while($1>1024){$1/=1024; s++} print int($1)v[s]}' <<< $1
 }
 
 # Accept commands from stdin
