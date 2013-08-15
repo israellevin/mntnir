@@ -5,16 +5,16 @@ This small bash script lets you mount, unmount and detach volumes right from the
 
 Run the script with no arguments to see an informative list of volumes attached to your machine:
     $ ./mntnir.sh
-    /dev/sdd1 : libcard 15.12Gb not mounted
-    /dev/sda1 : Tardis 431.23Gb not mounted
-    /dev/sda2 : loserfs 32.00Gb not mounted
-    /dev/sdc1 : 372.61Gb mounted on /
-    /dev/sdb1 : Tera 931.51Gb mounted on /media/Tera
+    /dev/sdd1 : libcard 16GB not mounted
+    /dev/sda1 : Tardis 500GB not mounted
+    /dev/sda2 : loserfs 32kB not mounted
+    /dev/sdc1 : 400GB mounted on /
+    /dev/sdb1 : Tera 1TB mounted on /media/Tera
 
-Run it with a single argument to filter the list:
+Run it with a single argument to filter the list according to substring:
     $ ./mntnir.sh sda
-    /dev/sda1 : Tardis 431.23Gb not mounted
-    /dev/sda2 : loserfs 32.00Gb not mounted
+    /dev/sda1 : Tardis 500GB not mounted
+    /dev/sda2 : loserfs 32kB not mounted
 
 If the filter comes up with a single result, it prints possible actions:
     $ ./mntnir.sh libca
@@ -28,10 +28,10 @@ Give it a letter or more from the start of your chosen action to make it so:
 Or glue it all together in a script with something like dmenu:
     #!/bin/sh
     dmenu='dmenu -i -l 10'
-    vol=`/root/work/mntnir/mntnir.sh | $dmenu`
+    vol=`mntnir.sh | $dmenu`
     if [ "$vol" ]; then
-        command=`/root/work/mntnir/mntnir.sh $vol | $dmenu`
+        command=`mntnir.sh $vol | $dmenu`
         if [ "$command" ]; then
-            /root/work/mntnir/mntnir.sh $command | $dmenu
+            mntnir.sh $command | $dmenu
         fi
     fi
