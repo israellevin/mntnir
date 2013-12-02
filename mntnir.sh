@@ -4,7 +4,7 @@
 # Public Domain
 
 # Parse dbus results
-function parse
+parse()
 {
     # Get to the data if given a full response
     [ 'method' = "$1" ] && [ 'variant' = "$7" ] && shift 7 || shift 6
@@ -24,7 +24,7 @@ function parse
                 parse $1 $2 $3
                 shift 3
             else
-                parse ${@:1:$# - 1}
+                parse ${*:1:$# - 1}
                 shift 2
             fi
         done
@@ -41,24 +41,24 @@ function parse
 }
 
 # Query values from UDisks device via dbus
-function query
+query()
 {
     parse $(dbus-send --system --print-reply --dest=org.freedesktop.UDisks "$1" org.freedesktop.DBus.Properties.Get string:org.freedesktop.UDisks.Device string:"$2")
 }
 
 # Case insensitive matching
-function matchi
+matchi()
 {
-    local s; s=$(tr '[:upper:]' '[:lower:]' <<< $1)
-    local p; p=$(tr '[:upper:]' '[:lower:]' <<< $2)
+    local s; s=$(tr [:upper:] [:lower:] <<< $1)
+    local p; p=$(tr [:upper:] [:lower:] <<< $2)
     local r; r=${s/${p}*/}
     [ ${#r} -eq ${#s} ] && echo -1 || echo "${#r}"
 }
 
 # Turn number of bytes into human readable size
-function humanify
+humanify()
 {
-    awk '{split("B kB MB GB TB PB",v); s=1; while($1>1000){$1/=1000; s++} print int($1)v[s]}' <<< $1
+    awk '{split("B K M G",v); s=1; while($1>1024){$1/=1024; s++} print int($1)v[s]}' <<< $1
 }
 
 # Accept commands from stdin
@@ -95,7 +95,7 @@ else
         fi
 
         # Filter non-matches
-        [ "$1" ] && [ $(matchi "${dev}${lbl}${fst}${siz}${mnt}" "$1") -eq -1 ] && continue
+        [ "$1" ] && [ "$(matchi "${dev}${lbl}${fst}${siz}${mnt}" "$1")" -eq -1 ] && continue
 
         vols=( ${vols[*]} "$vol" )
         cur_mnt="$mnt"
@@ -117,14 +117,14 @@ else
         mnt="$cur_mnt"
         declare -a acts
         [ 'not mounted' = "$mnt" ] && acts[0]='mount' || acts[0]='umount'
-        [ 'true' = $(query "$vol" DriveCanDetach) ] && acts[1]='detach'
-        [ 'true' = $(query "$vol" DriveIsMediaEjectable) ] && acts=( ${acts[*]-} 'eject' )
+        [ 'true' = "$(query "$vol" DriveCanDetach)" ] && acts[1]='detach'
+        [ 'true' = "$(query "$vol" DriveIsMediaEjectable)" ] && acts=( ${acts[*]-} 'eject' )
 
         # Filter non-matches to action argument
         if [ "$2" ]; then
             len=${#acts[*]}
-            for (( i=0; i<$len; i++ )); do
-                [ $(matchi "${acts[$i]}" "$2") -ne 0 ] && unset acts[$i]
+            for (( i=0; i<len; i++ )); do
+                [ "$(matchi "${acts[$i]}" "$2")" -ne 0 ] && unset acts[$i]
             done
 
             # Single actions matched, make it so
